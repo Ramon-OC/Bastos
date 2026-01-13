@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  SwipeView.swift
 //  Bastos
 //
 //  Created by José Ramón Ortiz Castañeda on 09/01/26.
@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct SwipeView: View {
     var body: some View {
-        MediaDeckView()
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 
 #Preview {
-    ContentView()
+    SwipeView()
 }
