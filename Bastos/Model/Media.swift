@@ -7,7 +7,7 @@
 
 import Photos
 
-struct Media: Identifiable {
+struct Media: Identifiable, Equatable {
     var id: String
     var asset: PHAsset
     var date: String

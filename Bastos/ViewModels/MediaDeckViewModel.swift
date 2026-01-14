@@ -12,8 +12,13 @@ extension MediaDeckView {
 
     @Observable
     class ViewModel {
-        private var photos: [Media] = [] // all pics
+        private var fetchedPhotos: [Media] = [] // all pics
         var showingMedia: [Media] = []
+        var showingUpcomingMedia: [Media] =  []
+
+        // index
+        var lastIndex = 1
+        var lastUpcomingIndex: Int { min(lastIndex + 4, fetchedPhotos.count - 1) }
 
         var authorizationStatus: PHAuthorizationStatus = .notDetermined
         var isLoading = false
@@ -26,8 +31,8 @@ extension MediaDeckView {
         init() {
             checkAuthorization()
             updateUpcomingImages()
-            if photos.count > 2 {
-                showingMedia = Array(photos.prefix(2))
+            if fetchedPhotos.count > 2 {
+                showingMedia = Array(fetchedPhotos.prefix(2))
             }
         }
 
@@ -62,7 +67,7 @@ extension MediaDeckView {
                 tempPhotos.append(Media(asset: asset))
             }
 
-            photos = tempPhotos
+            fetchedPhotos = tempPhotos
             isLoading = false
         }
 
@@ -109,9 +114,6 @@ extension MediaDeckView {
         }
 
         // for deck managment
-        var lastIndex = 1
-        var lastUpcomingIndex: Int { min(lastIndex + 4, photos.count - 1) }
-        var upcomingMedia: [Media] = []
 
         func isTopCard(_ media: Media) -> Bool {
             guard let index = showingMedia.firstIndex(where: { $0.id == media.id }) else {
@@ -121,19 +123,26 @@ extension MediaDeckView {
         }
 
         func moveCard() {
-            showingMedia.removeFirst()
-            self.lastIndex += 1
-
-            if lastIndex < photos.count {
-                showingMedia.append(photos[lastIndex])
-            }
-
+            updateDeckImages()
+            updateUpcomingImages()
         }
 
-        func updateUpcomingImages() {
-            upcomingMedia = []
-            for index in lastIndex...lastUpcomingIndex {
-                upcomingMedia.append(photos[index])
+        private func updateDeckImages() {
+            showingMedia.removeFirst()
+            self.lastIndex += 1
+            if lastIndex < fetchedPhotos.count {
+                showingMedia.append(fetchedPhotos[lastIndex])
+            }
+        }
+
+        private func updateUpcomingImages() {
+            showingUpcomingMedia = []
+
+            if lastIndex < fetchedPhotos.count {
+                for index in lastIndex...lastUpcomingIndex {
+                    showingUpcomingMedia.append(fetchedPhotos[index])
+                }
+                print("lastIndex: \(String(lastIndex)) con lastUpcomingIndex: \(String(lastUpcomingIndex))")
             }
         }
     }

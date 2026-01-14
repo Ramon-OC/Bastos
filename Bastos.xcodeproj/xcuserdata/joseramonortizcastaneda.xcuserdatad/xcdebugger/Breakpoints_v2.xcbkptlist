@@ -46,8 +46,8 @@
             filePath = "Bastos/ViewModels/MediaDeckViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "133"
-            endingLineNumber = "133"
+            startingLineNumber = "138"
+            endingLineNumber = "138"
             landmarkName = "updateUpcomingImages()"
             landmarkType = "7">
          </BreakpointContent>

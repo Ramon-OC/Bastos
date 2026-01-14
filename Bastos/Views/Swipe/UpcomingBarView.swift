@@ -11,7 +11,7 @@ struct UpcomingBarView: View {
 
     let viewModel: MediaDeckView.ViewModel
 
-    let media: [Media]
+    @Binding var media: [Media]
     @State private var images: [UIImage?] = []
 
     var body: some View {
@@ -47,5 +47,11 @@ struct UpcomingBarView: View {
                 images = loadedMedia
             }
         }
+        .onChange(of: media) {
+            viewModel.loadMultipleImages(for: media, targetSize: CGSize(width: 70, height: 70)) { loadedMedia in
+                images = loadedMedia
+            }
+        }
+
     }
 }

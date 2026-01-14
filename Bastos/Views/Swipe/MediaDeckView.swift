@@ -21,7 +21,7 @@ struct MediaDeckView: View {
 
             Spacer(minLength: 10)
 
-            UpcomingBarView(viewModel: viewModel, media: viewModel.upcomingMedia)
+            UpcomingBarView(viewModel: viewModel, media: $viewModel.showingUpcomingMedia)
 
             ZStack {
                 ForEach(viewModel.showingMedia) { media in
