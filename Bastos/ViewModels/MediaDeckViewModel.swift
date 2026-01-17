@@ -12,9 +12,15 @@ extension MediaDeckView {
 
     @Observable
     class ViewModel {
+
+        private let photoService: PhotoLibraryServiceProtocol
+
         private var fetchedPhotos: [Media] = [] // all pics
         var showingMedia: [Media] = []
         var showingUpcomingMedia: [Media] =  []
+
+        private var removeAssets: [PHAsset] = []
+        private var saveAssets: [PHAsset] = []
 
         // index
         var lastIndex = 1
@@ -28,7 +34,11 @@ extension MediaDeckView {
         var removalTransition = AnyTransition.trailingBottom
         let dragThreshold: CGFloat = 80.0
 
-        init() {
+        // for bottom bar
+        var remainMessage: String = "01 de 1000"
+
+        init(photoService: PhotoLibraryServiceProtocol = PhotoLibraryService()) {
+            self.photoService = photoService
             checkAuthorization()
             updateUpcomingImages()
             if fetchedPhotos.count > 2 {
@@ -37,20 +47,10 @@ extension MediaDeckView {
         }
 
         func checkAuthorization() {
-            authorizationStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-
-            if authorizationStatus == .notDetermined {
-                PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] status in
-                    Task { @MainActor [weak self] in
-                        guard let self else { return }
-                        authorizationStatus = status
-                        if status == .authorized || status == .limited {
-                            fetchPhotos()
-                        }
-                    }
+            photoService.checkAuthorization { [weak self] status in
+                if status == .authorized || status == .limited {
+                    self?.fetchPhotos()
                 }
-            } else if authorizationStatus == .authorized || authorizationStatus == .limited {
-                fetchPhotos()
             }
         }
 
@@ -72,59 +72,29 @@ extension MediaDeckView {
         }
 
         func loadImage(for media: Media, targetSize: CGSize, completion: @escaping (UIImage?) -> Void) {
-            let options = PHImageRequestOptions()
-            options.deliveryMode = .highQualityFormat
-            options.isNetworkAccessAllowed = true
+                   photoService.loadImage(
+                       for: media,
+                       targetSize: targetSize
+                   ) { image in
+                       completion(image)
+                   }
+               }
 
-            imageManager.requestImage(
-                for: media.asset,
-                targetSize: targetSize,
-                contentMode: .aspectFill,
-                options: options
-            ) { image, _ in
-                completion(image)
-            }
-        }
-
-        func loadMultipleImages(for medias: [Media], targetSize: CGSize, completion: @escaping ([UIImage?]) -> Void) {
-            let options = PHImageRequestOptions()
-            options.deliveryMode = .highQualityFormat
-            options.isNetworkAccessAllowed = true
-
-            let group = DispatchGroup()
-            var results: [UIImage?] = Array(repeating: nil, count: medias.count)
-
-            for (index, media) in medias.enumerated() {
-                group.enter()
-
-                imageManager.requestImage(
-                    for: media.asset,
-                    targetSize: targetSize,
-                    contentMode: .aspectFill,
-                    options: options
-                ) { image, _ in
-                    results[index] = image
-                    group.leave()
-                }
-            }
-
-            group.notify(queue: .main) {
-                completion(results)
+        func loadMultipleImages(for media: [Media], targetSize: CGSize, completion: @escaping ([UIImage?]) -> Void) {
+            photoService.loadMultipleImages(
+                for: media,
+                targetSize: targetSize
+            ) { images in
+                completion(images.compactMap { $0 })
             }
         }
 
         // for deck managment
-
         func isTopCard(_ media: Media) -> Bool {
             guard let index = showingMedia.firstIndex(where: { $0.id == media.id }) else {
                 return false
             }
             return index == 0
-        }
-
-        func moveCard() {
-            updateDeckImages()
-            updateUpcomingImages()
         }
 
         private func updateDeckImages() {
@@ -142,8 +112,35 @@ extension MediaDeckView {
                 for index in lastIndex...lastUpcomingIndex {
                     showingUpcomingMedia.append(fetchedPhotos[index])
                 }
-                print("lastIndex: \(String(lastIndex)) con lastUpcomingIndex: \(String(lastUpcomingIndex))")
             }
+        }
+
+        private func moveCard() {
+            updateDeckImages()
+            updateUpcomingImages()
+        }
+
+        // MARK: VIEW FUNCTIONS
+        func leftCardSwipe(asset: PHAsset) {
+            removeAssets.append(asset)
+            moveCard()
+        }
+
+        func rightCardSwipe(asset: PHAsset) {
+            saveAssets.append(asset)
+            moveCard()
+        }
+
+        func centerButtonPressed() {
+
+        }
+
+        func leftButtonPressed() {
+
+        }
+
+        func rightButtonPressed() {
+
         }
     }
 }

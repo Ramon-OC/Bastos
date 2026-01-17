@@ -86,14 +86,20 @@ struct MediaDeckView: View {
                                             return
                                         }
 
-                                        if drag.translation.width < -viewModel.dragThreshold ||
-                                            drag.translation.width > viewModel.dragThreshold {
-                                            viewModel.moveCard()
+                                        if drag.translation.width < -viewModel.dragThreshold {
+                                            viewModel.leftCardSwipe(asset: media.asset)
+                                        } else if drag.translation.width > viewModel.dragThreshold {
+                                            viewModel.rightCardSwipe(asset: media.asset)
                                         }
                                     })
                         )
                 }
             }
+
+            BottomBar(centerButtonMessage: $viewModel.remainMessage,
+                      rightButton: viewModel.rightButtonPressed,
+                      leftButton: viewModel.leftButtonPressed,
+                      centerButton: viewModel.centerButtonPressed)
 
             Spacer(minLength: 10)
         }

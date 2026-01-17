@@ -9,13 +9,16 @@ import SwiftUI
 
 struct BottomBar: View {
 
-    @Binding var remainMessage: String
+    @Binding var centerButtonMessage: String
+    let rightButton: () -> Void
+    let leftButton: () -> Void
+    let centerButton: () -> Void
 
     var body: some View {
         HStack {
 
             Button {
-                // undo action
+                rightButton()
             }label: {
                 Image(systemName: "arrow.trianglehead.counterclockwise.rotate.90")
                     .frame(width: 60, height: 60)
@@ -24,20 +27,19 @@ struct BottomBar: View {
                     .glassEffect()
             }
 
-            Text(remainMessage)
-                .font(.system(.subheadline, design: .rounded))
-            .bold()
-                .foregroundColor(.white)
-                .padding(.horizontal, 35)
-                .padding(.vertical, 15)
-                .background(.black)
-                .cornerRadius(10)
-                .padding(.horizontal, 20)
+            Button {
+                centerButton()
+            }label: {
+                Text(centerButtonMessage)
+                    .font(.title)
+                    .padding()
+                    .glassEffect(.regular)
+            }
 
             Button {
-                // undo action
+                leftButton()
             }label: {
-                Image(systemName: "tray.and.arrow.down.fill")
+                Image(systemName: "eye.slash.fill")
                     .frame(width: 60, height: 60)
                     .font(.system(size: 25))
                     .foregroundStyle(.secondary)
@@ -45,13 +47,5 @@ struct BottomBar: View {
             }
         }
 
-    }
-}
-
-struct BottomBar_Previews: PreviewProvider {
-    @State static var previewRemain: String = "01 de 1,200"
-
-    static var previews: some View {
-        BottomBar(remainMessage: $previewRemain)
     }
 }

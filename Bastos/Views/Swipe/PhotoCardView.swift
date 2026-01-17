@@ -30,7 +30,6 @@ struct PhotoCardView: View, Identifiable {
                                 .padding(.horizontal, 30)
                                 .padding(.vertical, 10)
                                 .frame(width: 250, height: 30)
-                                .glassEffect()
                         }
                         .padding([.bottom], 30)
                     }
@@ -52,7 +51,8 @@ struct PhotoCardView: View, Identifiable {
     }
 
     private func loadThumbnail() {
-        let targetSize = CGSize(width: 200, height: 200)
+        let targetSize = CGSize(width: 720, height: 1000)
+
         viewModel.loadImage(for: media, targetSize: targetSize) { loadedImage in
             self.image = loadedImage
         }
