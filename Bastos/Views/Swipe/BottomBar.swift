@@ -9,16 +9,13 @@ import SwiftUI
 
 struct BottomBar: View {
 
-    @Binding var centerButtonMessage: String
-    let rightButton: () -> Void
-    let leftButton: () -> Void
-    let centerButton: () -> Void
+    let viewModel: MediaDeckView.MediaDeckViewModel
 
     var body: some View {
         HStack {
 
             Button {
-                rightButton()
+                viewModel.leftButtonPressed()
             }label: {
                 Image(systemName: "arrow.trianglehead.counterclockwise.rotate.90")
                     .frame(width: 60, height: 60)
@@ -28,16 +25,18 @@ struct BottomBar: View {
             }
 
             Button {
-                centerButton()
+                viewModel.centerButtonPressed()
             }label: {
-                Text(centerButtonMessage)
-                    .font(.title)
+                Text(viewModel.remainMessage)
+                    .frame(width: 150, height: 40)
+                    .font(.subheadline)
                     .padding()
                     .glassEffect(.regular)
             }
+            .disabled(viewModel.centerButtonIsDisabled())
 
             Button {
-                leftButton()
+                viewModel.rightButtonPressed()
             }label: {
                 Image(systemName: "eye.slash.fill")
                     .frame(width: 60, height: 60)

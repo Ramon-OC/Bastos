@@ -10,7 +10,7 @@ import SwiftUI
 struct MediaDeckView: View {
 
     @GestureState private var dragState = DragState.inactive
-    @State private var viewModel = ViewModel()
+    @State private var viewModel = MediaDeckViewModel()
 
     var body: some View {
         VStack {
@@ -21,10 +21,10 @@ struct MediaDeckView: View {
 
             Spacer(minLength: 10)
 
-            UpcomingBarView(viewModel: viewModel, media: $viewModel.showingUpcomingMedia)
+            UpcomingBarView(viewModel: viewModel, media: $viewModel.upcomingMedia)
 
             ZStack {
-                ForEach(viewModel.showingMedia) { media in
+                ForEach(viewModel.deckMedia) { media in
                     PhotoCardView(viewModel: viewModel, media: media)
                         .zIndex(viewModel.isTopCard(media) ? 1 : 0)
                         .overlay {
@@ -87,19 +87,16 @@ struct MediaDeckView: View {
                                         }
 
                                         if drag.translation.width < -viewModel.dragThreshold {
-                                            viewModel.leftCardSwipe(asset: media.asset)
+                                            viewModel.leftCardSwipe(media: media)
                                         } else if drag.translation.width > viewModel.dragThreshold {
-                                            viewModel.rightCardSwipe(asset: media.asset)
+                                            viewModel.rightCardSwipe(media: media)
                                         }
                                     })
                         )
                 }
             }
 
-            BottomBar(centerButtonMessage: $viewModel.remainMessage,
-                      rightButton: viewModel.rightButtonPressed,
-                      leftButton: viewModel.leftButtonPressed,
-                      centerButton: viewModel.centerButtonPressed)
+            BottomBar(viewModel: viewModel)
 
             Spacer(minLength: 10)
         }

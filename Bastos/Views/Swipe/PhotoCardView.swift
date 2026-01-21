@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PhotoCardView: View, Identifiable {
     let id = UUID()
-    let viewModel: MediaDeckView.ViewModel
+    let viewModel: MediaDeckView.MediaDeckViewModel
     let media: Media
     @State private var image: UIImage?
 
@@ -53,7 +53,7 @@ struct PhotoCardView: View, Identifiable {
     private func loadThumbnail() {
         let targetSize = CGSize(width: 720, height: 1000)
 
-        viewModel.loadImage(for: media, targetSize: targetSize) { loadedImage in
+        viewModel.loadSingleUIImage(for: media, targetSize: targetSize) { loadedImage in
             self.image = loadedImage
         }
     }

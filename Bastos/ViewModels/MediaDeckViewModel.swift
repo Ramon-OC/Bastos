@@ -1,8 +1,8 @@
 //
-//  MediaDeckView.swift
+//  MediaDeckViewModel.swift
 //  Bastos
 //
-//  Created by José Ramón Ortiz Castañeda on 09/01/26.
+//  Created by José Ramón Ortiz Castañeda on 20/01/26.
 //
 
 import Photos
@@ -10,137 +10,167 @@ import SwiftUI
 
 extension MediaDeckView {
 
-    @Observable
-    class ViewModel {
+    enum SwipeAction {
+        case none
+        case remove
+        case save
+    }
 
+    enum ModifyAction {
+        case none
+        case undo
+        case hide
+    }
+
+    @Observable
+    class MediaDeckViewModel {
         private let photoService: PhotoLibraryServiceProtocol
 
-        private var fetchedPhotos: [Media] = [] // all pics
-        var showingMedia: [Media] = []
-        var showingUpcomingMedia: [Media] =  []
+        private var fetchedPhotos: [Media] = []  // all pics
+        private var swipeActionHistory: [SwipeAction] = []
 
-        private var removeAssets: [PHAsset] = []
-        private var saveAssets: [PHAsset] = []
+        private var toRemoveAssets: [Media] = [] // temp arrays for storing elements to be saved or deleted
+        private var toSaveAssets: [Media] = []
 
-        // index
-        var lastIndex = 1
-        var lastUpcomingIndex: Int { min(lastIndex + 4, fetchedPhotos.count - 1) }
+        var deckMedia: [Media] = []              // only stores media that is displayed on screen
+        var upcomingMedia: [Media] = []
 
-        var authorizationStatus: PHAuthorizationStatus = .notDetermined
-        var isLoading = false
-        private let imageManager = PHCachingImageManager()
-
-        // for deck
-        var removalTransition = AnyTransition.trailingBottom
-        let dragThreshold: CGFloat = 80.0
-
-        // for bottom bar
-        var remainMessage: String = "01 de 1000"
+        private var imageOnDisplayIndex: Int = 0
 
         init(photoService: PhotoLibraryServiceProtocol = PhotoLibraryService()) {
             self.photoService = photoService
-            checkAuthorization()
-            updateUpcomingImages()
-            if fetchedPhotos.count > 2 {
-                showingMedia = Array(fetchedPhotos.prefix(2))
-            }
+            fetchPhotos()
+            setDeckImages()
+            setUpcomingImages()
         }
 
-        func checkAuthorization() {
-            photoService.checkAuthorization { [weak self] status in
-                if status == .authorized || status == .limited {
-                    self?.fetchPhotos()
+        // MARK: - model
+        // takes the next five (or fewer if there aren't enough) images from the list and saves them to 'upcomingMedia'
+        private func setUpcomingImages() {
+            upcomingMedia = []
+            if (imageOnDisplayIndex + 1) < fetchedPhotos.count {
+                for index in (imageOnDisplayIndex + 1)...min(imageOnDisplayIndex + 5, fetchedPhotos.count - 1) {
+                    upcomingMedia.append(fetchedPhotos[index])
                 }
+
             }
         }
 
-        func fetchPhotos() {
-            isLoading = true
-
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-
-            let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-
-            var tempPhotos: [Media] = []
-            fetchResult.enumerateObjects { asset, _, _ in
-                tempPhotos.append(Media(asset: asset))
-            }
-
-            fetchedPhotos = tempPhotos
-            isLoading = false
-        }
-
-        func loadImage(for media: Media, targetSize: CGSize, completion: @escaping (UIImage?) -> Void) {
-                   photoService.loadImage(
-                       for: media,
-                       targetSize: targetSize
-                   ) { image in
-                       completion(image)
-                   }
-               }
-
-        func loadMultipleImages(for media: [Media], targetSize: CGSize, completion: @escaping ([UIImage?]) -> Void) {
-            photoService.loadMultipleImages(
-                for: media,
-                targetSize: targetSize
-            ) { images in
-                completion(images.compactMap { $0 })
+        // takes media from the current index and the next one to manage the deck (it only has two cards)
+        private func setDeckImages() {
+            deckMedia = []
+            if (imageOnDisplayIndex + 1) < fetchedPhotos.count {
+                deckMedia.append(fetchedPhotos[imageOnDisplayIndex])
+                deckMedia.append(fetchedPhotos[imageOnDisplayIndex+1])
             }
         }
 
-        // for deck managment
+        private func moveCard() {
+            self.imageOnDisplayIndex += 1
+            setUpcomingImages()
+            setDeckImages()
+        }
+
+        private func undoSwipe(lastAction type: SwipeAction) {
+            switch type {
+            case .none:
+                return
+            case .remove:
+                if toRemoveAssets.isEmpty { return }
+                toRemoveAssets.removeLast()
+                self.imageOnDisplayIndex -= 1
+                setUpcomingImages()
+                setDeckImages()
+            case .save:
+                if toSaveAssets.isEmpty { return }
+                toSaveAssets.removeLast()
+                self.imageOnDisplayIndex -= 1
+                setUpcomingImages()
+                setDeckImages()
+            }
+        }
+
         func isTopCard(_ media: Media) -> Bool {
-            guard let index = showingMedia.firstIndex(where: { $0.id == media.id }) else {
+            guard let index = deckMedia.firstIndex(where: { $0.id == media.id }) else {
                 return false
             }
             return index == 0
         }
 
-        private func updateDeckImages() {
-            showingMedia.removeFirst()
-            self.lastIndex += 1
-            if lastIndex < fetchedPhotos.count {
-                showingMedia.append(fetchedPhotos[lastIndex])
-            }
+        // MARK: - computed view vars
+        var remainMessage: String {
+            toRemoveAssets.count > 0 ? "Borrar \(String(toRemoveAssets.count)) elementos" :
+            "Desliza a la izquierda para eliminar"
         }
 
-        private func updateUpcomingImages() {
-            showingUpcomingMedia = []
-
-            if lastIndex < fetchedPhotos.count {
-                for index in lastIndex...lastUpcomingIndex {
-                    showingUpcomingMedia.append(fetchedPhotos[index])
-                }
-            }
-        }
-
-        private func moveCard() {
-            updateDeckImages()
-            updateUpcomingImages()
-        }
-
-        // MARK: VIEW FUNCTIONS
-        func leftCardSwipe(asset: PHAsset) {
-            removeAssets.append(asset)
+        // MARK: - view actions functions
+        func leftCardSwipe(media: Media) {
+            swipeActionHistory.append(.remove)
+            toRemoveAssets.append(media)
             moveCard()
         }
 
-        func rightCardSwipe(asset: PHAsset) {
-            saveAssets.append(asset)
+        func rightCardSwipe(media: Media) {
+            swipeActionHistory.append(.save)
+            toSaveAssets.append(media)
             moveCard()
+        }
+
+        func leftButtonPressed() { // undo last swipe
+            if swipeActionHistory.isEmpty {return}
+
+            switch swipeActionHistory.removeLast() {
+            case .none:
+                return
+            case .remove:
+                undoSwipe(lastAction: .remove)
+            case .save:
+                undoSwipe(lastAction: .save)
+            }
+
         }
 
         func centerButtonPressed() {
 
         }
 
-        func leftButtonPressed() {
-
-        }
-
         func rightButtonPressed() {
 
         }
+
+        func centerButtonIsDisabled() -> Bool {
+            false
+        }
+
+        // MARK: - photo service functions [fetching]
+        // loads user's entire library using media service
+        private func fetchPhotos() {
+            photoService.checkAuthorization { [weak self] status in
+                if status == .authorized || status == .limited {
+                    self?.photoService.fetchPhotos { media in
+                        self?.fetchedPhotos = media
+                    }
+                }
+            }
+        }
+
+        // allows a subview in onappear to load a single media asset
+        func loadSingleUIImage(for media: Media, targetSize: CGSize, completion: @escaping (UIImage?) -> Void) {
+            photoService.loadImage(for: media, targetSize: targetSize) { image in
+                completion(image)
+            }
+        }
+
+        // allows a subview in onappear to load multiple media assets
+        func loadMultipleUIImages(for media: [Media], targetSize: CGSize, completion: @escaping ([UIImage?]) -> Void) {
+            photoService.loadMultipleImages(for: media, targetSize: targetSize) { images in
+                completion(images.compactMap { $0 })
+            }
+        }
+
+        // MARK: - view personalitatio
+        var removalTransition: AnyTransition = AnyTransition.trailingBottom
+        let dragThreshold: CGFloat = 80.0
+
     }
 }

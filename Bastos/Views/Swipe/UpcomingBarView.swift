@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UpcomingBarView: View {
 
-    let viewModel: MediaDeckView.ViewModel
+    let viewModel: MediaDeckView.MediaDeckViewModel
 
     @Binding var media: [Media]
     @State private var images: [UIImage?] = []
@@ -43,12 +43,12 @@ struct UpcomingBarView: View {
             .frame(maxWidth: .infinity, minHeight: 70)
         }
         .onAppear {
-            viewModel.loadMultipleImages(for: media, targetSize: CGSize(width: 70, height: 70)) { loadedMedia in
+            viewModel.loadMultipleUIImages(for: media, targetSize: CGSize(width: 70, height: 70)) { loadedMedia in
                 images = loadedMedia
             }
         }
         .onChange(of: media) {
-            viewModel.loadMultipleImages(for: media, targetSize: CGSize(width: 70, height: 70)) { loadedMedia in
+            viewModel.loadMultipleUIImages(for: media, targetSize: CGSize(width: 70, height: 70)) { loadedMedia in
                 images = loadedMedia
             }
         }
