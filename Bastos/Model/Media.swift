@@ -19,7 +19,4 @@ struct Media: Identifiable, Equatable {
         self.date = asset.addedDate.formatted(date: .abbreviated, time: .omitted)
         self.isFavorite = asset.isFavorite
     }
-
-    private static let bcf = ByteCountFormatter()
-
 }

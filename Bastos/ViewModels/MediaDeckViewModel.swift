@@ -61,7 +61,9 @@ extension MediaDeckView {
         // takes media from the current index and the next one to manage the deck (it only has two cards)
         private func setDeckImages() {
             deckMedia = []
-            if (imageOnDisplayIndex + 1) < fetchedPhotos.count {
+            if (imageOnDisplayIndex + 1) == (fetchedPhotos.count) { // is last card
+                deckMedia.append(fetchedPhotos[imageOnDisplayIndex])
+            } else if (imageOnDisplayIndex+1) < fetchedPhotos.count {
                 deckMedia.append(fetchedPhotos[imageOnDisplayIndex])
                 deckMedia.append(fetchedPhotos[imageOnDisplayIndex+1])
             }
