@@ -22,17 +22,19 @@ struct PhotoCardView: View, Identifiable {
                     .frame(width: 360, height: 500)
                     .cornerRadius(10)
                     .padding(15)
-                    .overlay(alignment: .bottom) {
-                        VStack {
+                    .overlay(alignment: .bottomLeading) {
+                        VStack(alignment: .leading) {
                             Text(media.date)
-                                .font(.system(.headline, design: .rounded))
-                                .fontWeight(.bold)
-                                .padding(.horizontal, 30)
-                                .padding(.vertical, 10)
-                                .frame(width: 250, height: 30)
+                                .foregroundColor(.white)
+                                .font(.headline)
+                                .background(
+                                    Color.black.opacity(0.4)
+                                        .blur(radius: 0)
+                                )
                         }
-                        .padding([.bottom], 30)
+                        .padding(30)
                     }
+
             } else {
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
