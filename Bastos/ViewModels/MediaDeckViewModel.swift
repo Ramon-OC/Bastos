@@ -14,6 +14,7 @@ extension MediaDeckView {
         case none
         case remove
         case save
+        case hide
     }
 
     enum ModifyAction {
@@ -31,6 +32,7 @@ extension MediaDeckView {
 
         private var toRemoveAssets: [Media] = [] // temp arrays for storing elements to be saved or deleted
         private var toSaveAssets: [Media] = []
+        private var toHideAssets: [Media] = []
 
         var deckMedia: [Media] = []              // only stores media that is displayed on screen
         var upcomingMedia: [Media] = []
@@ -87,6 +89,12 @@ extension MediaDeckView {
                 self.imageOnDisplayIndex -= 1
                 setUpcomingImages()
                 setDeckImages()
+            case .hide:
+                if toHideAssets.isEmpty { return }
+                toHideAssets.removeLast()
+                self.imageOnDisplayIndex -= 1
+                setUpcomingImages()
+                setDeckImages()
             }
         }
 
@@ -118,7 +126,6 @@ extension MediaDeckView {
 
         func leftButtonPressed() { // undo last swipe
             if swipeActionHistory.isEmpty {return}
-
             switch swipeActionHistory.removeLast() {
             case .none:
                 return
@@ -126,6 +133,8 @@ extension MediaDeckView {
                 undoSwipe(lastAction: .remove)
             case .save:
                 undoSwipe(lastAction: .save)
+            case .hide:
+                undoSwipe(lastAction: .hide)
             }
 
         }
@@ -135,7 +144,9 @@ extension MediaDeckView {
         }
 
         func rightButtonPressed() {
-
+            swipeActionHistory.append(.hide)
+            toHideAssets.append(fetchedPhotos[imageOnDisplayIndex])
+            moveCard()
         }
 
         func centerButtonIsDisabled() -> Bool {

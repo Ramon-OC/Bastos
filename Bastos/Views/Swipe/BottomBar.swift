@@ -9,6 +9,7 @@ import SwiftUI
 
 struct BottomBar: View {
 
+    @State var showConfirmationAlert: Bool = false
     let viewModel: MediaDeckView.MediaDeckViewModel
 
     var body: some View {
@@ -36,7 +37,7 @@ struct BottomBar: View {
             .disabled(viewModel.centerButtonIsDisabled())
 
             Button {
-                viewModel.rightButtonPressed()
+                showConfirmationAlert = true
             }label: {
                 Image(systemName: "eye.slash.fill")
                     .frame(width: 60, height: 60)
@@ -44,6 +45,18 @@ struct BottomBar: View {
                     .foregroundStyle(.secondary)
                     .glassEffect()
             }
+
+            .alert("¿Quieres ocultar la imagen?", isPresented: $showConfirmationAlert) {
+                Button("Cancelar", role: .cancel) {
+                    return
+                }
+                Button("Ocultar", role: .destructive) {
+                    viewModel.rightButtonPressed()
+                }
+            } message: {
+                Text("Al finalizar, confirmarás nuevamente todas las imágenes que se ocultarán")
+            }
+
         }
 
     }
