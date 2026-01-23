@@ -21,8 +21,8 @@ struct BottomBar: View {
                 Image(systemName: "arrow.trianglehead.counterclockwise.rotate.90")
                     .frame(width: 60, height: 60)
                     .font(.system(size: 25))
-                    .foregroundStyle(.secondary)
-                    .glassEffect()
+                    .foregroundStyle(.white)
+                    .glassEffect(.clear)
             }
 
             Button {
@@ -31,8 +31,9 @@ struct BottomBar: View {
                 Text(viewModel.remainMessage)
                     .frame(width: 150, height: 40)
                     .font(.subheadline)
+                    .foregroundStyle(.white)
                     .padding()
-                    .glassEffect(.regular)
+                    .glassEffect(.clear)
             }
             .disabled(viewModel.centerButtonIsDisabled())
 
@@ -42,8 +43,8 @@ struct BottomBar: View {
                 Image(systemName: "eye.slash.fill")
                     .frame(width: 60, height: 60)
                     .font(.system(size: 25))
-                    .foregroundStyle(.secondary)
-                    .glassEffect()
+                    .foregroundStyle(.white)
+                    .glassEffect(.clear)
             }
             .alert("¿Quieres ocultar la imagen?", isPresented: $showConfirmationAlert) {
                 Button("Cancelar", role: .cancel) {
@@ -64,8 +65,8 @@ struct BottomBar: View {
                 Image(systemName: viewModel.isCurrentAssetFavorite() ? "heart.fill" : "heart")
                     .frame(width: 60, height: 60)
                     .font(.system(size: 25))
-                    .foregroundStyle(.secondary)
-                    .glassEffect()
+                    .foregroundStyle(viewModel.isCurrentAssetFavorite() ? .red: .white)
+                    .glassEffect(.clear)
             }
         }
     }
