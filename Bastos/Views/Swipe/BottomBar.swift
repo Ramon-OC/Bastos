@@ -45,19 +45,28 @@ struct BottomBar: View {
                     .foregroundStyle(.secondary)
                     .glassEffect()
             }
-
             .alert("¿Quieres ocultar la imagen?", isPresented: $showConfirmationAlert) {
                 Button("Cancelar", role: .cancel) {
                     return
                 }
                 Button("Ocultar", role: .destructive) {
-                    viewModel.rightButtonPressed()
+                    viewModel.right01ButtonPressed()
                 }
             } message: {
                 Text("Al finalizar, confirmarás nuevamente todas las imágenes que se ocultarán")
             }
 
+            Button {
+                Task {
+                        await viewModel.right02ButtonPressed()
+                    }
+            }label: {
+                Image(systemName: viewModel.isCurrentAssetFavorite() ? "heart.fill" : "heart")
+                    .frame(width: 60, height: 60)
+                    .font(.system(size: 25))
+                    .foregroundStyle(.secondary)
+                    .glassEffect()
+            }
         }
-
     }
 }

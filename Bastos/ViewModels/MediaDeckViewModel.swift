@@ -33,6 +33,7 @@ extension MediaDeckView {
         private var toRemoveAssets: [Media] = [] // temp arrays for storing elements to be saved or deleted
         private var toSaveAssets: [Media] = []
         private var toHideAssets: [Media] = []
+        private var toFavoriteAssets: [Media] = []
 
         var deckMedia: [Media] = []              // only stores media that is displayed on screen
         var upcomingMedia: [Media] = []
@@ -88,6 +89,7 @@ extension MediaDeckView {
             case .save:
                 if toSaveAssets.isEmpty { return }
                 toSaveAssets.removeLast()
+
                 self.imageOnDisplayIndex -= 1
                 setUpcomingImages()
                 setDeckImages()
@@ -105,6 +107,27 @@ extension MediaDeckView {
                 return false
             }
             return index == 0
+        }
+
+        func isCurrentAssetFavorite() -> Bool {
+            if imageOnDisplayIndex < fetchedPhotos.count {
+                return fetchedPhotos[imageOnDisplayIndex].isFavorite
+            } else {
+                return false
+            }
+        }
+
+        private func toggleFavorite() async {
+            if imageOnDisplayIndex < fetchedPhotos.count {
+                do {
+                    try await photoService.toggleFavorite(
+                        for: fetchedPhotos[imageOnDisplayIndex]
+                    )
+                    fetchedPhotos[imageOnDisplayIndex].isFavorite.toggle() // for the library
+                } catch {
+                    print("Error toggling favorite:", error)
+                }
+            }
         }
 
         // MARK: - computed view vars
@@ -145,10 +168,14 @@ extension MediaDeckView {
 
         }
 
-        func rightButtonPressed() {
+        func right01ButtonPressed() { // hide image
             swipeActionHistory.append(.hide)
             toHideAssets.append(fetchedPhotos[imageOnDisplayIndex])
             moveCard()
+        }
+
+        func right02ButtonPressed() async { // mark as favorite
+            await toggleFavorite()
         }
 
         func centerButtonIsDisabled() -> Bool {

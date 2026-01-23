@@ -92,6 +92,15 @@ final class PhotoLibraryService: PhotoLibraryServiceProtocol {
         }
     }
 
+    func toggleFavorite(for media: Media) async throws {
+        let newFavoriteState = !media.asset.isFavorite
+
+        try await PHPhotoLibrary.shared().performChanges {
+            let request = PHAssetChangeRequest(for: media.asset)
+            request.isFavorite = newFavoriteState
+        }
+    }
+
 //    USAGE
 //    Task {
 //        do {
@@ -101,15 +110,15 @@ final class PhotoLibraryService: PhotoLibraryServiceProtocol {
 //        }
 //    }
 
-    func toggleFavorite(for asset: PHAsset) {
-        PHPhotoLibrary.shared().performChanges {
-            // Create a change request from the asset to be modified.
-            let request = PHAssetChangeRequest(for: asset)
-            // Set a property of the request to change the asset itself.
-            request.isFavorite = !asset.isFavorite
-        } completionHandler: { success, error in
-            print("Finished updating asset. " + (success ? "Success." : error!.localizedDescription))
-        }
-    }
+//    func toggleFavorite(for asset: PHAsset) {
+//        PHPhotoLibrary.shared().performChanges {
+//            // Create a change request from the asset to be modified.
+//            let request = PHAssetChangeRequest(for: asset)
+//            // Set a property of the request to change the asset itself.
+//            request.isFavorite = !asset.isFavorite
+//                    } completionHandler: { success, error in
+//            print("Finished updating asset. " + (success ? "Success." : error!.localizedDescription))
+//        }
+//    }
 
 }
