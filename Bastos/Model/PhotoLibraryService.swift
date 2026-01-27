@@ -83,7 +83,7 @@ final class PhotoLibraryService: PhotoLibraryServiceProtocol {
     }
 
     // MARK: - photo manipulation actions [hide, remove]
-    func hideMultipleImages(for medias: [Media]) async throws {
+    func hideMultipleImages(medias: [Media]) async throws {
         try await PHPhotoLibrary.shared().performChanges {
             for media in medias {
                 let request = PHAssetChangeRequest(for: media.asset)
@@ -101,24 +101,11 @@ final class PhotoLibraryService: PhotoLibraryServiceProtocol {
         }
     }
 
-//    USAGE
-//    Task {
-//        do {
-//            try await hideMultipleImages(for: medias)
-//        } catch {
-//            print("Failed to hide images:", error)
-//        }
-//    }
-
-//    func toggleFavorite(for asset: PHAsset) {
-//        PHPhotoLibrary.shared().performChanges {
-//            // Create a change request from the asset to be modified.
-//            let request = PHAssetChangeRequest(for: asset)
-//            // Set a property of the request to change the asset itself.
-//            request.isFavorite = !asset.isFavorite
-//                    } completionHandler: { success, error in
-//            print("Finished updating asset. " + (success ? "Success." : error!.localizedDescription))
-//        }
-//    }
+    func deleteMultipleAsstes(for medias: [Media]) async throws {
+        let assets: [PHAsset] = medias.map { $0.asset }
+        try await PHPhotoLibrary.shared().performChanges {
+            PHAssetChangeRequest.deleteAssets(assets as NSFastEnumeration)
+        }
+    }
 
 }

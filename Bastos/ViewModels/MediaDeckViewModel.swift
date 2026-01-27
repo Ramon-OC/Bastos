@@ -26,6 +26,7 @@ extension MediaDeckView {
     @Observable
     class MediaDeckViewModel {
         private let photoService: PhotoLibraryServiceProtocol
+        private let coreDataRepository: ViewedImageRepositoryProtocol
 
         private var fetchedPhotos: [Media] = []  // all pics
         private var swipeActionHistory: [SwipeAction] = []
@@ -40,7 +41,9 @@ extension MediaDeckView {
 
         private var imageOnDisplayIndex: Int = 0
 
-        init(photoService: PhotoLibraryServiceProtocol = PhotoLibraryService()) {
+        init(photoService: PhotoLibraryServiceProtocol = PhotoLibraryService(),
+             repository: ViewedImageRepositoryProtocol) {
+            self.coreDataRepository = repository
             self.photoService = photoService
             fetchPhotos()
             setDeckImages()
@@ -130,6 +133,13 @@ extension MediaDeckView {
             }
         }
 
+        private func emptyAllLists() {
+            toRemoveAssets = []
+            toSaveAssets = []
+            toHideAssets = []
+            toFavoriteAssets = []
+        }
+
         // MARK: - computed view vars
         var remainMessage: String {
             toRemoveAssets.count > 0 ? "Borrar \(String(toRemoveAssets.count)) elementos" :
@@ -164,8 +174,24 @@ extension MediaDeckView {
 
         }
 
+        // This button executes all changes to the assets.
         func centerButtonPressed() {
+            // 1. Mark saved items as read
+            coreDataRepository.markMultipleAssetsAsViewed(assets: toSaveAssets)
+            // 2. Mark hidden items as read
+            coreDataRepository.markMultipleAssetsAsViewed(assets: toHideAssets)
+            // 4. Delete deleted items from the library list
+            Task {
+                do {
+                    try await photoService.hideMultipleImages(medias: toHideAssets)
+                    try await photoService.deleteMultipleAsstes(for: toRemoveAssets)
+                    emptyAllLists()
+                } catch {
+                    print(error)
+                }
+            }
 
+            // 6. Refresh assets for display
         }
 
         func right01ButtonPressed() { // hide image

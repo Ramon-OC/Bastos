@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import CoreData
 
 @main
 struct BastosApp: App {
+    let persistenceController = PersistenceController.shared
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MediaDeckView()
+                .environment(\.managedObjectContext,
+                             persistenceController.container.viewContext)
         }
     }
 }

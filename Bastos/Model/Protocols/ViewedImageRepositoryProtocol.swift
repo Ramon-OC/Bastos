@@ -9,5 +9,6 @@ import Foundation
 
 protocol ViewedImageRepositoryProtocol {
     func fetchReadAssetIDs() -> Set<String>
-    func markAsViewed(id: String)
+    func markAssetAsViewed(asset: Media)
+    func markMultipleAssetsAsViewed(assets: [Media])
 }

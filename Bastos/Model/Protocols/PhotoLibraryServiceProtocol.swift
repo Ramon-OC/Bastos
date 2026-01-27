@@ -14,4 +14,6 @@ protocol PhotoLibraryServiceProtocol {
     func loadImage(for media: Media, targetSize: CGSize, completion: @escaping (UIImage?) -> Void)
     func loadMultipleImages(for medias: [Media], targetSize: CGSize, completion: @escaping ([UIImage?]) -> Void)
     func toggleFavorite(for media: Media) async throws
+    func hideMultipleImages(medias: [Media]) async throws
+    func deleteMultipleAsstes(for medias: [Media]) async throws
 }

@@ -85,7 +85,8 @@ import SwiftUI
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
-                    .blur(radius: 120)
+                    .scaleEffect(2)
+                    .blur(radius: 100)
                     .opacity(fadeTrigger ? 1 : 0.8)
                     .overlay(
                         LinearGradient(
@@ -93,7 +94,7 @@ import SwiftUI
                                 Color.black.opacity(0),
                                 Color.black.opacity(0.4)
                             ]),
-                            startPoint: .center,
+                            startPoint: .top,
                             endPoint: .bottom
                         )
                     )

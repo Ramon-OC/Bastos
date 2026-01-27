@@ -6,28 +6,36 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct MediaDeckView: View {
 
+    @Environment(\.managedObjectContext) private var context
+
     @GestureState private var dragState = DragState.inactive
-    @State private var viewModel = MediaDeckViewModel()
+    @State private var viewModel: MediaDeckViewModel
     @State private var dismissingCardId: String? // ID de la carta que se está descartando
     @State private var dismissOffset: CGSize = .zero // Offset de descarte
 
+    init() {
+         // Inicialización temporal
+         let tempContext = PersistenceController.shared.container.viewContext
+         let repository = ViewedImageRepository(context: tempContext)
+         _viewModel = State(wrappedValue: MediaDeckViewModel(repository: repository))
+     }
+
     var body: some View {
         ZStack {
-            Spacer(minLength: 10)
 
             Background(viewModel: viewModel)
                 .ignoresSafeArea()
 
             VStack {
+
                 Image("BNW-ICON")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 40, height: 40)
-
-                Spacer(minLength: 10)
 
                 UpcomingBarView(viewModel: viewModel, media: $viewModel.upcomingMedia)
 
@@ -127,7 +135,6 @@ struct MediaDeckView: View {
 
                 BottomBar(viewModel: viewModel)
 
-                Spacer(minLength: 10)
             }
         }
     }

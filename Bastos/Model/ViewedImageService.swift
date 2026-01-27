@@ -31,9 +31,16 @@ final class ViewedImageRepository: ViewedImageRepositoryProtocol {
         }
     }
 
-    func markAsViewed(id: String) {
+    func markAssetAsViewed(asset: Media) {
         let viewed = ViewedImage(context: context)
-        viewed.imageId = id
+        viewed.imageId = asset.id
         try? context.save()
     }
+
+    func markMultipleAssetsAsViewed(assets: [Media]) {
+        for asset in assets {
+            markAssetAsViewed(asset: asset)
+        }
+    }
+
 }
