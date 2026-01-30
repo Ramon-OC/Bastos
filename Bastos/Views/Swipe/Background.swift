@@ -7,65 +7,6 @@
 
 import SwiftUI
 
-// struct Background: View {
-//
-//    var viewModel: MediaDeckView.MediaDeckViewModel
-//
-//    @State private var image: UIImage?
-//    @State private var fadeTrigger = false
-//
-//    var body: some View {
-//        Group {
-//            if let image = image {
-//                Image(uiImage: image)
-//                    .resizable()
-//                    .scaledToFill()
-//                    .blur(radius: 120)
-//                    .opacity(fadeTrigger ? 1 : 0.8)
-//                    .overlay(
-//                            LinearGradient(
-//                                gradient: Gradient(colors: [
-//                                    Color.black.opacity(0),
-//                                    Color.black.opacity(0.4)
-//                                ]),
-//                                startPoint: .center,
-//                                endPoint: .bottom
-//                            )
-//                        )
-//            } else {
-//                Rectangle()
-//                    .fill(Color.gray.opacity(0.3))
-//            }
-//        }
-//        .animation(.easeInOut(duration: 1), value: fadeTrigger)
-//        .onAppear {
-//            loadThumbnail()
-//        }
-//        .onChange(of: viewModel.deckMedia) {
-//            loadThumbnail()
-//        }
-//    }
-//
-//    private func loadThumbnail() {
-//        let targetSize = CGSize(width: 50, height: 50)
-//
-//        guard viewModel.deckMedia.count > 1 else {
-//            image = nil
-//            return
-//        }
-//
-//        fadeTrigger = false
-//
-//        viewModel.loadSingleUIImage(
-//            for: viewModel.deckMedia[0],
-//            targetSize: targetSize
-//        ) { newImage in
-//            image = newImage
-//            fadeTrigger = true
-//        }
-//    }
-// }
-
  struct Background: View {
 
     var viewModel: MediaDeckView.MediaDeckViewModel

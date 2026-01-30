@@ -16,10 +16,10 @@ struct UpcomingBarView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Próximas Imágenes en la Pila")
-                .font(.subheadline)
-                .bold()
-                .frame(maxWidth: .infinity)
+//            Text("Próximas Imágenes en la Pila")
+//                .font(.subheadline)
+//                .bold()
+//                .frame(maxWidth: .infinity)
 
             HStack(alignment: .center) {
                 ForEach(0..<images.count, id: \.self) { index in

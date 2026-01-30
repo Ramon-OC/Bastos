@@ -13,7 +13,7 @@ class PersistenceController {
     let container: NSPersistentContainer
 
     init() {
-        container = NSPersistentContainer(name: "Model") // Cambia "Bastos" por el nombre de tu .xcdatamodeld
+        container = NSPersistentContainer(name: "Model")
 
         container.loadPersistentStores { _, error in
             if let error = error {

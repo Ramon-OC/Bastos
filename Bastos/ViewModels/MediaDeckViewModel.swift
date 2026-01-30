@@ -46,8 +46,6 @@ extension MediaDeckView {
             self.coreDataRepository = repository
             self.photoService = photoService
             fetchPhotos()
-            setDeckImages()
-            setUpcomingImages()
         }
 
         // MARK: - model
@@ -210,11 +208,37 @@ extension MediaDeckView {
 
         // MARK: - photo service functions [fetching]
         // loads user's entire library using media service
+//        private func fetchPhotos() {
+//            photoService.checkAuthorization { [weak self] status in
+//                if status == .authorized || status == .limited {
+//                    self?.photoService.fetchPhotos { media in
+//                        self?.fetchedPhotos = media
+//                    }
+//                }
+//            }
+//        }
+
+        // MARK: - photo service functions [fetching]
+        // loads user's entire library using media service
         private func fetchPhotos() {
             photoService.checkAuthorization { [weak self] status in
                 if status == .authorized || status == .limited {
+                    // 1. Primero obtener los IDs de assets ya vistos desde Core Data
+                    let viewedAssetIDs = self?.coreDataRepository.fetchReadAssetIDs() ?? []
+
+                    // 2. Luego hacer fetch de todas las fotos
                     self?.photoService.fetchPhotos { media in
-                        self?.fetchedPhotos = media
+                        // 3. Filtrar las fotos para excluir las ya vistas
+                        let unfilteredPhotos = media.filter { photo in
+                            !viewedAssetIDs.contains(photo.id)
+                        }
+
+                        // 4. Guardar las fotos filtradas
+                        self?.fetchedPhotos = unfilteredPhotos
+
+                        // 5. Actualizar las vistas después del filtrado
+                        self?.setDeckImages()
+                        self?.setUpcomingImages()
                     }
                 }
             }
@@ -237,6 +261,10 @@ extension MediaDeckView {
         // MARK: - view personalitatio
         var removalTransition: AnyTransition = AnyTransition.trailingBottom
         let dragThreshold: CGFloat = 80.0
+
+        var toRemoveCount: Int { toRemoveAssets.count }
+        var toSaveCount: Int { toSaveAssets.count }
+        var toHideCount: Int { toHideAssets.count }
 
     }
 }

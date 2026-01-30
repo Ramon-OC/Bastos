@@ -19,7 +19,7 @@ struct BottomBar: View {
                 viewModel.leftButtonPressed()
             }label: {
                 Image(systemName: "arrow.trianglehead.counterclockwise.rotate.90")
-                    .frame(width: 60, height: 60)
+                    .frame(width: 50, height: 50)
                     .font(.system(size: 25))
                     .foregroundStyle(.white)
                     .glassEffect(.clear)
@@ -29,10 +29,9 @@ struct BottomBar: View {
                 viewModel.centerButtonPressed()
             }label: {
                 Text(viewModel.remainMessage)
-                    .frame(width: 150, height: 40)
+                    .frame(width: 180, height: 50)
                     .font(.subheadline)
                     .foregroundStyle(.white)
-                    .padding()
                     .glassEffect(.clear)
             }
             .disabled(viewModel.centerButtonIsDisabled())
@@ -41,7 +40,7 @@ struct BottomBar: View {
                 showConfirmationAlert = true
             }label: {
                 Image(systemName: "eye.slash.fill")
-                    .frame(width: 60, height: 60)
+                    .frame(width: 50, height: 50)
                     .font(.system(size: 25))
                     .foregroundStyle(.white)
                     .glassEffect(.clear)
@@ -63,7 +62,7 @@ struct BottomBar: View {
                     }
             }label: {
                 Image(systemName: viewModel.isCurrentAssetFavorite() ? "heart.fill" : "heart")
-                    .frame(width: 60, height: 60)
+                    .frame(width: 50, height: 50)
                     .font(.system(size: 25))
                     .foregroundStyle(viewModel.isCurrentAssetFavorite() ? .red: .white)
                     .glassEffect(.clear)

@@ -1,10 +1,9 @@
 //
-//  ViewedImageService.swift
+//  ViewedImageRepository.swift
 //  Bastos
 //
-//  Created by José Ramón Ortiz Castañeda on 16/01/26.
+//  Created by José Ramón Ortiz Castañeda on 28/01/26.
 //
-
 import CoreData
 
 final class ViewedImageRepository: ViewedImageRepositoryProtocol {
@@ -24,6 +23,7 @@ final class ViewedImageRepository: ViewedImageRepositoryProtocol {
         do {
             let results = try context.fetch(request)
             let ids = results.compactMap { $0["imageId"] as? String }
+            print("Se leyeron en el repo \(ids.count) assets")
             return Set(ids)
         } catch {
             print("An error with CoreData has ocurred:", error)
@@ -38,8 +38,20 @@ final class ViewedImageRepository: ViewedImageRepositoryProtocol {
     }
 
     func markMultipleAssetsAsViewed(assets: [Media]) {
+        print("se quieren guardar \(assets.count)")
+        let now = Date()
+
         for asset in assets {
-            markAssetAsViewed(asset: asset)
+            let viewed = ViewedImage(context: context)
+            viewed.imageId = asset.id
+            viewed.viewedAt = now
+        }
+
+        do {
+            try context.save()
+            print("Guardados correctamente")
+        } catch {
+            print("Error de guardando:", error)
         }
     }
 
