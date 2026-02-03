@@ -12,6 +12,8 @@ struct TopBar: View {
     var deleteAssetsCount: Int
     var saveAssetsCount: Int
     var hideAssetsCount: Int
+    @Binding var showSettings: Bool
+
 
     var body: some View {
         HStack {
@@ -32,7 +34,7 @@ struct TopBar: View {
             Spacer()
 
             Button(action: {
-                
+                showSettings.toggle()
             }, label: {
                 HStack{
                     Image(systemName: "gearshape.fill")

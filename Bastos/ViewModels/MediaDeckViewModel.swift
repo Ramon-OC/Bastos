@@ -41,11 +41,24 @@ extension MediaDeckView {
 
         private var imageOnDisplayIndex: Int = 0
 
+        @ObservationIgnored
+           @AppStorage("selectedSort")
+           private var storedSort: String = MediaSort.dateDescending.rawValue
+
+           var selectedSort: MediaSort = .dateDescending {
+               didSet {
+                   storedSort = selectedSort.rawValue
+                   fetchPhotos(sortType: selectedSort)
+               }
+           }
+        
+        
         init(photoService: PhotoLibraryServiceProtocol = PhotoLibraryService(),
              repository: ViewedImageRepositoryProtocol) {
             self.coreDataRepository = repository
             self.photoService = photoService
-            fetchPhotos()
+            selectedSort = MediaSort(rawValue: storedSort) ?? .dateDescending
+            fetchPhotos(sortType: selectedSort)
         }
 
         // MARK: - model
@@ -137,10 +150,17 @@ extension MediaDeckView {
             toHideAssets = []
             toFavoriteAssets = []
         }
+        
+        // MARK: settings
+        func setSortSetings(sortType: MediaSort){
+            UserDefaults.standard.set(sortType.rawValue, forKey: "selectedSort")
+            fetchPhotos(sortType: selectedSort)
+        }
 
         // MARK: - computed view vars
         var remainMessage: String {
-            toRemoveAssets.count > 0 ? "Borrar \(String(toRemoveAssets.count)) elementos" :
+            toRemoveAssets.count > 0 ?
+            String(localized: .deleteElements(toRemoveAssets.count)):
             "Desliza a la izquierda para eliminar"
         }
 
@@ -220,18 +240,21 @@ extension MediaDeckView {
 
         // MARK: - photo service functions [fetching]
         // loads user's entire library using media service
-        private func fetchPhotos() {
+        private func fetchPhotos(sortType: MediaSort) {
             photoService.checkAuthorization { [weak self] status in
                 if status == .authorized || status == .limited {
                     // 1. Primero obtener los IDs de assets ya vistos desde Core Data
                     let viewedAssetIDs = self?.coreDataRepository.fetchReadAssetIDs() ?? []
 
                     // 2. Luego hacer fetch de todas las fotos
-                    self?.photoService.fetchPhotos { media in
+                    self?.photoService.fetchPhotos(sortType: sortType) { media in
                         // 3. Filtrar las fotos para excluir las ya vistas
-                        let unfilteredPhotos = media.filter { photo in
+                        var unfilteredPhotos = media.filter { photo in
                             !viewedAssetIDs.contains(photo.id)
                         }
+                        
+                        // 3.5 si es el tipo de filtado es random, revolver
+                        if sortType == .random { unfilteredPhotos.shuffle() }
 
                         // 4. Guardar las fotos filtradas
                         self?.fetchedPhotos = unfilteredPhotos

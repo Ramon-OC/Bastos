@@ -45,15 +45,15 @@ struct BottomBar: View {
                     .foregroundStyle(.white)
                     .glassEffect(.clear)
             }
-            .alert("¿Quieres ocultar la imagen?", isPresented: $showConfirmationAlert) {
-                Button("Cancelar", role: .cancel) {
+            .alert(String(localized: .doYouWantToHideThisImage), isPresented: $showConfirmationAlert) {
+                Button(String(localized: .cancel), role: .cancel) {
                     return
                 }
-                Button("Ocultar", role: .destructive) {
+                Button(String(localized: .hide), role: .destructive) {
                     viewModel.right01ButtonPressed()
                 }
             } message: {
-                Text("Al finalizar, confirmarás nuevamente todas las imágenes que se ocultarán")
+                Text(String(localized: .atTheEndYouWillConfirmAgainAllTheImagesThatWillBeHidden))
             }
 
             Button {

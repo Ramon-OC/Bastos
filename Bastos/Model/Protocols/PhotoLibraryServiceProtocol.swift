@@ -10,7 +10,7 @@ import Photos
 
 protocol PhotoLibraryServiceProtocol {
     func checkAuthorization(completion: @escaping (PHAuthorizationStatus) -> Void)
-    func fetchPhotos(completion: @escaping ([Media]) -> Void)
+    func fetchPhotos(sortType: MediaSort,completion: @escaping ([Media]) -> Void)
     func loadImage(for media: Media, targetSize: CGSize, completion: @escaping (UIImage?) -> Void)
     func loadMultipleImages(for medias: [Media], targetSize: CGSize, completion: @escaping ([UIImage?]) -> Void)
     func toggleFavorite(for media: Media) async throws

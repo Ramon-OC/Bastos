@@ -8,6 +8,36 @@
 import SwiftUI
 import Photos
 
+enum MediaSort: String, CaseIterable, Identifiable{
+    case dateAscending, dateDescending, random
+    
+    var id: Self { self }
+    
+    var title: String {
+            switch self {
+            case .dateAscending:
+                return String(localized: .oldestFirst)
+            case .dateDescending:
+                return String(localized: .newestFirst)
+            case .random:
+                return String(localized: .random)
+            }
+        }
+    
+    func getMediaType() -> NSSortDescriptor{
+        switch self {
+        case .dateAscending:
+            NSSortDescriptor(key: "creationDate", ascending: true)
+        case .dateDescending:
+            NSSortDescriptor(key: "creationDate", ascending: false)
+        case .random:
+            NSSortDescriptor(key: "creationDate", ascending: false)
+        }
+    }
+    
+}
+
+
 final class PhotoLibraryService: PhotoLibraryServiceProtocol {
 
     private let imageManager = PHCachingImageManager()
@@ -26,10 +56,10 @@ final class PhotoLibraryService: PhotoLibraryServiceProtocol {
         }
     }
 
-    func fetchPhotos(completion: @escaping ([Media]) -> Void) {
+    func fetchPhotos(sortType: MediaSort, completion: @escaping ([Media]) -> Void) {
         let options = PHFetchOptions()
         options.sortDescriptors = [
-            NSSortDescriptor(key: "creationDate", ascending: false)
+            sortType.getMediaType()
         ]
 
         let result = PHAsset.fetchAssets(with: .image, options: options)

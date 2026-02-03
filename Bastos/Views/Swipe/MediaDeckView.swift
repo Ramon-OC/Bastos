@@ -15,6 +15,8 @@ struct MediaDeckView: View {
     @State private var dismissingCardId: String?        // ID de la carta que se está descartando
     @State private var dismissOffset: CGSize = .zero    // Offset de descarte
     
+    @State private var showSettings: Bool = false
+    
     init() {
         let tempContext = PersistenceController.shared.container.viewContext
         let repository = ViewedImageRepository(context: tempContext)
@@ -26,7 +28,8 @@ struct MediaDeckView: View {
             
             TopBar(deleteAssetsCount: viewModel.toRemoveCount,
                    saveAssetsCount: viewModel.toSaveCount,
-                   hideAssetsCount: viewModel.toHideCount)
+                   hideAssetsCount: viewModel.toHideCount,
+                   showSettings: $showSettings)
             .padding(.top, 50)
             
             UpcomingBarView(viewModel: viewModel, media: $viewModel.upcomingMedia)
@@ -128,6 +131,12 @@ struct MediaDeckView: View {
             BottomBar(viewModel: viewModel)
             
         }
+        .sheet(isPresented: $showSettings) {
+            SettingsSheetView(viewModel: viewModel)
+                .presentationDetents([.height(400)])
+        }
+
+
         .ignoresSafeArea()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background{
